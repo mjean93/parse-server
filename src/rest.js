@@ -129,6 +129,11 @@ function del(config, auth, className, objectId) {
               var cacheAdapter = config.cacheController;
               cacheAdapter.user.del(firstResult.sessionToken);
               inflatedObject = Parse.Object.fromJSON(firstResult);
+              // Notify LiveQuery server if possible
+              config.liveQueryController.onAfterDelete(
+                inflatedObject.className,
+                inflatedObject
+              );
               return triggers.maybeRunTrigger(
                 triggers.Types.beforeDelete,
                 auth,
@@ -171,8 +176,6 @@ function del(config, auth, className, objectId) {
       );
     })
     .then(() => {
-      // Notify LiveQuery server if possible
-      config.liveQueryController.onAfterDelete(className, inflatedObject);
       return triggers.maybeRunTrigger(
         triggers.Types.afterDelete,
         auth,
